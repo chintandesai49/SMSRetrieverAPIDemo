@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.support.v4.content.LocalBroadcastManager
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
+import android.widget.TextView
 import android.widget.Toast
 import com.google.android.gms.auth.api.Auth
 import com.google.android.gms.auth.api.credentials.Credential
@@ -23,12 +24,15 @@ class MainActivity : AppCompatActivity(), GoogleApiClient.ConnectionCallbacks, G
     private val KEY_IS_RESOLVING = "is_resolving"
     private val RC_HINT = 2
     private var otpReceiver: MySMSBroadcastReceiver.OTPReceiveListener = this
+    lateinit var otpTxtView: TextView
 
     val smsBroadcast = MySMSBroadcastReceiver()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        otpTxtView = findViewById(R.id.otp_txt)
 
         mCredentialsApiClient = GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
@@ -56,10 +60,12 @@ class MainActivity : AppCompatActivity(), GoogleApiClient.ConnectionCallbacks, G
         task.addOnSuccessListener {
             // Successfully started retriever, expect broadcast intent
             // ...
+            otpTxtView.text = "Waiting for the OTP"
             Toast.makeText(this, "SMS Retriever starts", Toast.LENGTH_LONG).show()
         }
 
         task.addOnFailureListener {
+            otpTxtView.text = "Cannot Start SMS Retriever"
             Toast.makeText(this, "Error", Toast.LENGTH_LONG).show()
         }
     }
@@ -94,16 +100,17 @@ class MainActivity : AppCompatActivity(), GoogleApiClient.ConnectionCallbacks, G
 
     }
 
-    override fun onOTPReceived(otp: String?) {
+    override fun onOTPReceived(otp: String) {
         if (smsBroadcast != null) {
             LocalBroadcastManager.getInstance(this).unregisterReceiver(smsBroadcast)
-
         }
         Toast.makeText(this, otp, Toast.LENGTH_SHORT).show()
+        otpTxtView.text = "Your OTP is: $otp"
         Log.e("OTP Received", otp)
     }
 
     override fun onOTPTimeOut() {
+        otpTxtView.setText("Timeout")
         Toast.makeText(this, " SMS retriever API Timeout", Toast.LENGTH_SHORT).show()
     }
 
