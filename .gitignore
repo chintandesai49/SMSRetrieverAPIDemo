@@ -14,13 +14,8 @@
 .idea/runConfigurations.xml
 .idea/vcs.xml
 app/.gitignore
-app/build.gradle
 app/release/
 app/src/androidTest
 app/src/test
-build.gradle
-gradle.properties
-gradle/
 gradlew
-gradlew.bat
-settings.gradle
+app/libs/
